@@ -3,11 +3,11 @@ import { LetterState } from "./types"
 export function getKeyboardLetterClass(state: LetterState) {
   switch(state) {
     case LetterState.ABSENT:
-      return 'absent'
+      return 'absent-state'
     case LetterState.PRESENT:
-      return 'present'
+      return 'present-state'
     case LetterState.CORRECT:
-      return 'correct'
+      return 'correct-state'
     default:
       return 'default-key-state'
   }

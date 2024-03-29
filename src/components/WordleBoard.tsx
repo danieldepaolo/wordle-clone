@@ -1,27 +1,29 @@
 import { useEffect } from "react"
 
 import WordleBoardLetter from "./WordleBoardLetter"
-import { WordleBoard as WordleBoardType, WordleRow } from "./types"
+import { T_WordleRow, T_WorldBoardLetter, T_WordleBoard } from "../types"
 
 export interface WordleBoardRowProps {
-  rowLetters: WordleRow
-  rowNum: number
+  rowLetters: T_WordleRow
 }
 
 export const WordleBoardRow = (
-  { rowLetters = [], rowNum }: WordleBoardRowProps
+  { rowLetters = [] }: WordleBoardRowProps
 ) => {
   return (
     <div className='wordle-row'>
-      {rowLetters.map((letterObj, i) => (
-        <WordleBoardLetter key={`row-${rowNum}-pos${i}`} letterObj={letterObj} />
+      {rowLetters.map((boardLetter: T_WorldBoardLetter) => (
+        <WordleBoardLetter
+          key={`row-${boardLetter.row}-pos${boardLetter.position}`}
+          boardLetter={boardLetter}
+        />
       ))}
     </div>
   )
 }
 
 export interface WordleBoardProps {
-  boardState: WordleBoardType
+  boardState: T_WordleBoard
   errMsg: string
   setErrMsg: (msg: string) => void
   gameEndMsg: string
@@ -41,8 +43,8 @@ export const WordleBoard = ({ boardState, errMsg, setErrMsg, gameEndMsg }: Wordl
   
   return (
     <div className='wordle-board'>
-      {boardState.map((row, i) => (
-        <WordleBoardRow key={`row-${i}`} rowLetters={row} rowNum={i} />
+      {boardState.map((row: T_WordleRow, i: number) => (
+        <WordleBoardRow key={`row-${i}`} rowLetters={row} />
       ))}
       {errMsg && <div className='user-message error-message'>{errMsg}</div>}
       {!!gameEndMsg && <div className='user-message game-end-message'>{gameEndMsg}</div>}

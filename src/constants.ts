@@ -1,4 +1,4 @@
-import { KeyType, LetterState, WordleLetter } from "./types"
+import { KeyType, LetterState, T_WordleLetter } from "./types"
 
 const WORDS = Object.freeze([
   'APPLE',
@@ -51,7 +51,7 @@ const KEYBOARD_LAYOUT = [
   [KeyType.ENTER, 'Z', 'X', 'C', 'V', 'B', 'N', 'M', KeyType.BACKSPACE]
 ]
 
-const DEFAULT_LETTER_OBJ: WordleLetter = {
+const DEFAULT_LETTER_OBJ: T_WordleLetter = {
   letter: '',
   state: LetterState.DEFAULT
 }

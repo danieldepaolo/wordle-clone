@@ -1,11 +1,11 @@
-import { KEYBOARD_LAYOUT } from "./constants"
-import { KeyType, KeyboardKey, LetterState } from "./types"
-import { getKeyboardLetterClass } from "./util"
+import { KEYBOARD_LAYOUT } from "../constants"
+import { KeyType, KeyboardKey, LetterState } from "../types"
+import { getKeyboardLetterClass } from "../util"
 
 export interface WordleKeyboardKeyProps {
   keyboardKey: KeyboardKey
   letterState: LetterState
-  onPressKey: (key: string) => void
+  onPressKey: (key: KeyboardKey) => void
 }
 
 export const WordleKeyboardKey = ({
@@ -41,9 +41,9 @@ export const WordleKeyboardKey = ({
 
 export interface WordleKeyboardProps {
   onPressEnter: () => void
-  onPressLetter: (key: string) => void
+  onPressLetter: (key: KeyboardKey) => void
   onPressBackspace: () => void
-  keyboardLetterState: Record<string, LetterState>
+  keyboardLetterState: Record<KeyboardKey, LetterState>
 }
 
 export const WordleKeyboard = ({

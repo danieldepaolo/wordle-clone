@@ -1,14 +1,15 @@
 import { useEffect, useRef, useState } from 'react'
 
-import { WordleKeyboard } from './WordleKeyboard'
-import { WordleBoard } from './WordleBoard'
+import { WordleKeyboard } from './components/WordleKeyboard'
+import { WordleBoard } from './components/WordleBoard'
 
 import {
-  WordleLetter,
   LetterState,
-  WordleBoard as WordleBoardType,
+  T_WorldBoardLetter,
+  T_WordleBoard,
   WordleLetterPosition,
-  WordleRow
+  T_WordleRow,
+  KeyboardKey
 } from './types'
 import {
   ALPHABET,
@@ -18,16 +19,17 @@ import {
   WORD_LENGTH
 } from './constants'
 
-import './App.css'
+import './styles/App.css'
 import { fetchRandomWord } from './api'
 import { delay } from './util'
 
 function App() {
-  const [wordleBoard, setWordleBoard] = useState<WordleBoardType>(
-    Array.from({ length: NUM_ROWS }).map(() =>
-      Array.from({ length: WORD_LENGTH }).map(() => ({
-        letter: '',
-        state: LetterState.DEFAULT
+  const [wordleBoard, setWordleBoard] = useState<T_WordleBoard>(
+    Array.from({ length: NUM_ROWS }).map((_, i) =>
+      Array.from({ length: WORD_LENGTH }).map((_, j) => ({
+        ...DEFAULT_LETTER_OBJ,
+        row: i,
+        position: j
       }))
     )
   )
@@ -37,7 +39,7 @@ function App() {
     position: 0
   })
 
-  const [keyboardLetterState, setKeyboardLetterState] = useState<Record<string, LetterState>>(
+  const [keyboardLetterState, setKeyboardLetterState] = useState<Record<KeyboardKey, LetterState>>(
     ALPHABET.reduce((acc, char) => {
       return {
         ...acc,
@@ -63,14 +65,14 @@ function App() {
   async function determineGoalWord(): Promise<string | null> {
     try {
       const words = await fetchRandomWord()
-      return words?.[0]
+      return words?.[0] || null
     } catch (err) {
       console.error(err)
       return null
     }
   }
 
-  function handlePressLetter(letter: string) {
+  function handlePressLetter(letter: string): void {
     if (gameOver) return
 
     const { row, position } = nextLetterSpot
@@ -80,11 +82,12 @@ function App() {
         const newBoard = structuredClone(prev)
         newBoard[row][position] = {
           letter,
-          state: LetterState.DEFAULT
+          state: LetterState.DEFAULT,
+          ...nextLetterSpot,
         }
         return newBoard
       })
-    
+
       setNextLetterSpot(prev => ({
         ...prev,
         position: prev.position + 1
@@ -92,7 +95,7 @@ function App() {
     }
   }
 
-  async function handlePressEnter() {
+  async function handlePressEnter(): Promise<void> {
     if (gameOver) return
 
     if (nextLetterSpot.position === WORD_LENGTH) {
@@ -109,95 +112,101 @@ function App() {
     }
   }
 
-  function handlePressBackspace() {
+  function handlePressBackspace(): void {
     if (gameOver) return
 
     const { row, position } = nextLetterSpot
+    const prevLetterSpot = {
+      row,
+      position: position - 1
+    }
 
     if (position > 0) {
       setWordleBoard(prev => {
         const newBoard = structuredClone(prev)
-        newBoard[row][position - 1] = DEFAULT_LETTER_OBJ
+        newBoard[row][position - 1] = {
+          ...DEFAULT_LETTER_OBJ,
+          ...prevLetterSpot
+        }
         return newBoard
       })
-    
-      setNextLetterSpot(prev => ({
-        ...prev,
-        position: prev.position - 1
-      }))
+
+      setNextLetterSpot(prevLetterSpot)
     }
   }
   
   async function setLetterStateDelayed(
-    letterObj: WordleLetter,
-    letterPos: WordleLetterPosition,
+    newBoardLetter: T_WorldBoardLetter,
     delayMs = 300
-  ) {
-    await delay(letterPos.position * delayMs)
+  ): Promise<void> {
+    const { row, position } = newBoardLetter
+
+    await delay(position * delayMs)
 
     setWordleBoard(prev => {
       const newBoard = structuredClone(prev)
-      newBoard[letterPos.row][letterPos.position] = letterObj
+      newBoard[row][position] = newBoardLetter
       return newBoard
     })
   }
 
-  async function evaluateBoardRowLetters(rowNum: number) {
+  async function evaluateBoardRowLetters(rowNum: number): Promise<T_WordleRow> {
     const goalWordCharCount = goalWord.current.split('').reduce((acc, curr) => {
       acc[curr] === undefined ? acc[curr] = 1 : acc[curr] += 1
       return acc
     }, {} as Record<string, number>)
 
-    const row: WordleRow = structuredClone(wordleBoard[rowNum])
+    const row: T_WordleRow = structuredClone(wordleBoard[rowNum])
 
-    row.forEach((letterObj, i) => {
-      if (goalWord.current[i] === letterObj.letter) {
-        goalWordCharCount[letterObj.letter] -= 1
-        row[i] = {
-          ...letterObj,
+    row.forEach((boardLetter: T_WorldBoardLetter) => {
+      const { position, letter } = boardLetter
+
+      if (goalWord.current[position] === letter) {
+        goalWordCharCount[letter] -= 1
+        row[position] = {
+          ...boardLetter,
           state: LetterState.CORRECT
         }
       }
     })
 
-    row.forEach((letterObj, i) => {
-      if (goalWordCharCount[letterObj.letter] > 0) {
-        goalWordCharCount[letterObj.letter] -= 1
-        row[i] = {
-          ...letterObj,
+    row.forEach((boardLetter: T_WorldBoardLetter) => {
+      const { position, letter } = boardLetter
+
+      if (goalWordCharCount[letter] > 0) {
+        goalWordCharCount[letter] -= 1
+        row[position] = {
+          ...boardLetter,
           state: LetterState.PRESENT
         }
       }
     })
 
-    row.forEach((letterObj, i) => {
-      if (letterObj.state === LetterState.DEFAULT) {
-        row[i] = {
-          ...letterObj,
+    row.forEach((boardLetter: T_WorldBoardLetter) => {
+      const { state, position } = boardLetter
+
+      if (state === LetterState.DEFAULT) {
+        row[position] = {
+          ...boardLetter,
           state: LetterState.ABSENT
         }
       }
     })
 
-    const promises = row.map(async (letterObj, i) => {
-      return setLetterStateDelayed(
-        letterObj,
-        { row: rowNum, position: i }
-      )
-    })
-
+    const promises = row.map((boardLetter) => setLetterStateDelayed(boardLetter))
     await Promise.all(promises)
+
     return row
   }
 
-  async function evaluateRow(rowNum: number) {
+  async function evaluateRow(rowNum: number): Promise<void> {
     const newRow = await evaluateBoardRowLetters(rowNum)
 
     setKeyboardLetterState(prev => {
       const newState = structuredClone(prev)
-      newRow.forEach(letterObj => {
-        if (letterObj.state > newState[letterObj.letter]) {
-          newState[letterObj.letter] = letterObj.state
+      newRow.forEach(({ state, letter }) => {
+        if (state > newState[letter]) {
+          newState[letter] = state
         }
       })
       return newState
@@ -206,7 +215,7 @@ function App() {
     determineEndOfGame(rowNum, newRow)
   }
 
-  function determineEndOfGame(rowNum: number, row: WordleRow) {
+  function determineEndOfGame(rowNum: number, row: T_WordleRow): void {
     const isWin = row.every(({ state }) =>
       state === LetterState.CORRECT
     )

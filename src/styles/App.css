@@ -1,3 +1,5 @@
+@import "animations.css";
+
 body {
   font-family: sans-serif;
 }
@@ -18,7 +20,6 @@ body {
 .app-header {
   font-size: 32px;
   font-weight: bold;
-  /* letter-spacing: -1.5px; */
   border-bottom: 1px solid var(--wordle-light-gray);
   padding-bottom: 12px;
   text-align: center;
@@ -29,11 +30,43 @@ body {
   position: relative;
 }
 
+.wordle-row {
+  display: flex;
+  justify-content: center;
+  gap: var(--spacing);
+}
+
+.wordle-row:not(:last-child) {
+  margin-bottom: var(--spacing);
+}
+
 .wordle-letter {
   display: flex;
   align-items: center;
   justify-content: center;
   text-transform: uppercase;
+}
+
+.wordle-board-letter {
+  height: var(--letter-size);
+  width: var(--letter-size);
+  border: 2px solid var(--wordle-light-gray);
+  font-size: 36px;
+  font-weight: bold;
+}
+
+.wordle-board-letter--filled {
+  border: 2px solid gray;
+  animation: bounce-in .3s ease;
+}
+
+.wordle-board-letter--evaluated {
+  border: 2px solid transparent;
+  animation: flip-with-scale .5s ease;
+}
+
+.letter-evaluated {
+  color: white;
 }
 
 .keyboard-row {
@@ -55,36 +88,28 @@ body {
   cursor: pointer;
 }
 
-.wordle-board-letter {
-  height: var(--letter-size);
-  width: var(--letter-size);
-  border: 2px solid var(--wordle-light-gray);
-  font-size: 36px;
-  font-weight: bold;
+.special-key {
+  font-size: 14px;
 }
 
-.wordle-board-letter--filled {
-  border: 2px solid gray;
-  animation: bounce-in .3s ease;
+.default-key-state {
+  background-color: var(--wordle-light-gray);
 }
 
-.letter-evaluated {
-  color: white;
+.default-board-letter-state {
+  background-color: white;
 }
 
-.wordle-board-letter--evaluated {
-  border: 2px solid transparent;
-  animation: flip-with-scale .5s ease;
+.absent-state {
+  background-color: var(--wordle-absent-gray);
 }
 
-.wordle-row {
-  display: flex;
-  justify-content: center;
-  gap: var(--spacing);
+.present-state {
+  background-color: var(--wordle-present-yellow);
 }
 
-.wordle-row:not(:last-child) {
-  margin-bottom: var(--spacing);
+.correct-state {
+  background-color: var(--wordle-correct-green);
 }
 
 .user-message {
@@ -107,54 +132,4 @@ body {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-}
- 
-.special-key {
-  font-size: 14px;
-}
-
-.default-key-state {
-  background-color: var(--wordle-light-gray);
-}
-
-.default-board-letter-state {
-  background-color: white;
-}
-
-.absent {
-  background-color: var(--wordle-absent-gray);
-}
-
-.present {
-  background-color: var(--wordle-present-yellow);
-}
-
-.correct {
-  background-color: var(--wordle-correct-green);
-}
-
-@keyframes bounce-in {
-  0% {
-    opacity: .7;
-    transform: scale(.9);
-  }
-  50% {
-    opacity: 1;
-    transform: scale(1.05);
-  }
-  100% {
-    transform: scale(1);
-  }
-}
-
-@keyframes flip-with-scale {
-  0% {
-    transform: scaleY(1);
-  }
-  50% {
-    transform: scaleY(0);
-  }
-  100% {
-    transform: scaleY(1);
-  }
 }

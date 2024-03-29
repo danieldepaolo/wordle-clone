@@ -12,7 +12,7 @@ export enum KeyType {
 
 export type KeyboardKey = string | KeyType
 
-export interface WordleLetter {
+export interface T_WordleLetter {
   letter: string;
   state: LetterState;
 }
@@ -22,5 +22,7 @@ export interface WordleLetterPosition {
   position: number;
 }
 
-export type WordleRow = WordleLetter[]
-export type WordleBoard = WordleRow[]
+export type T_WorldBoardLetter = T_WordleLetter & WordleLetterPosition
+
+export type T_WordleRow = T_WorldBoardLetter[]
+export type T_WordleBoard = T_WordleRow[]
