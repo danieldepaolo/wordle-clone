@@ -20,7 +20,7 @@ import {
 } from './constants'
 
 import './styles/App.css'
-import { fetchRandomWord } from './api'
+import { fetchRandomWords } from './api'
 import { delay } from './util'
 import { evaluateBoardRow, placeLetterOnBoard } from './wordleBoardSvc'
 
@@ -52,20 +52,30 @@ function App() {
   const [errMsg, setErrMsg] = useState('')
   const [gameEndMsg, setGameEndMsg] = useState('')
 
+  const endpointCalled = useRef(false) // Make sure we only call endpoint once
   const goalWord = useRef(WORDS[(Math.floor(Math.random() * WORDS.length))])
   const gameOver = !!gameEndMsg
 
   useEffect(() => {
-    determineGoalWord().then(word => {
-      if (word !== null) {
-        goalWord.current = word
+    const func = async () => {
+      if (!endpointCalled.current) {
+        endpointCalled.current = true
+        const word = await determineGoalWord()
+        if (word !== null) {
+          goalWord.current = word
+        }
       }
-    })
+    }
+
+    func()
   }, [])
 
   async function determineGoalWord(): Promise<string | null> {
     try {
-      const words = await fetchRandomWord()
+      const words = await fetchRandomWords({
+        number: 1,
+        length: 5
+      })
       return words?.[0] || null
     } catch (err) {
       console.error(err)

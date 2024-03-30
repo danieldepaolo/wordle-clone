@@ -1,4 +1,9 @@
-export async function fetchRandomWord(number: number = 1, length: number = 5) {
+
+interface fetchRandomWordsArgs {
+  number: number;
+  length: 5;
+}
+export async function fetchRandomWords({ number, length }: fetchRandomWordsArgs) {
   const response = await fetch(
     `https://random-word-api.herokuapp.com/word?number=${number}&length=${length}`
   )

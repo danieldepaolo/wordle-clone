@@ -45,6 +45,7 @@ body {
   align-items: center;
   justify-content: center;
   text-transform: uppercase;
+  user-select: none;
 }
 
 .wordle-board-letter {
