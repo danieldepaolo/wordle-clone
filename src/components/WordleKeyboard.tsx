@@ -40,9 +40,9 @@ export const WordleKeyboardKey = ({
 }
 
 export interface WordleKeyboardProps {
-  onPressEnter: () => void
-  onPressLetter: (key: KeyboardKey) => void
-  onPressBackspace: () => void
+  onPressEnter: Function
+  onPressLetter: Function
+  onPressBackspace: Function
   keyboardLetterState: Record<KeyboardKey, LetterState>
 }
 
