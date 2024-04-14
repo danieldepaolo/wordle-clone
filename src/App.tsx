@@ -189,6 +189,7 @@ function App() {
       <div className='app-header'>
         Wordle Clone
       </div>
+      <hr className='divider' />
       <WordleBoard
         boardState={wordleBoard}
         errMsg={errMsg}
